@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: recruitment
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/recruitment
+    username: mataycode
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+server:
+  port: 8080
