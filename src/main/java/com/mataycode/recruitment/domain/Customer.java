@@ -3,6 +3,8 @@ package com.mataycode.recruitment.domain;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +42,6 @@ public class Customer {
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
     @OneToMany(mappedBy = "customer")
     @JsonManagedReference
     private List<Order> orders = new ArrayList<>();
@@ -49,16 +50,37 @@ public class Customer {
     private Gender Gender;
 
     @Column(nullable = false)
+    private String password;
+
+    @Column
     private String profileImageId;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> roles;
+
+    @Column(nullable = false)
+    private LocalDate birthDate;
 
     //CONSTRUCTORS
     public Customer() {
+    }
+
+    public Customer(String name, String email, Gender gender, String password, LocalDate birthDate) {
+        this.name = name;
+        this.email = email;
+        this.Gender = gender;
+        this.password = password;
+        this.birthDate = birthDate;
     }
 
     //OWN METHODS
     public void addOrder(Order order) {
         orders.add(order);
         order.setCustomer(this);
+    }
+
+    public int getAge() {
+        return birthDate != null ? Period.between(birthDate, LocalDate.now()).getDays() : 0;
     }
 
     //GETTERS AND SETTERS
@@ -68,6 +90,10 @@ public class Customer {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -84,5 +110,25 @@ public class Customer {
 
     public String getProfileImageId() {
         return profileImageId;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
     }
 }
