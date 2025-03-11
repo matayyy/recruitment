@@ -48,6 +48,12 @@
             <scope>test</scope>
         </dependency>
 
+<!--        OAUTH2-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
+
 <!--        JSON WEB TOKEN-->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>

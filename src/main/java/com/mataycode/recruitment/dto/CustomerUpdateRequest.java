@@ -12,7 +12,6 @@ public record CustomerUpdateRequest(
         String email,
         @PastOrPresent(message = "Date should be in the past")
         LocalDate birthDate,
-        Gender gender,
-        String profileImageId
+        Gender gender
 ) {
 }

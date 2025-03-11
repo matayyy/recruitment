@@ -3,18 +3,20 @@ package com.mataycode.recruitment.controller;
 import com.mataycode.recruitment.domain.OrderStatusHistory;
 import com.mataycode.recruitment.domain.Status;
 import com.mataycode.recruitment.domain.Order;
+import com.mataycode.recruitment.dto.CreateOrderRequest;
 import com.mataycode.recruitment.services.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/api/v1/orders")
 public class OrderController {
 
     private static final Logger log = LoggerFactory.getLogger(OrderController.class);
@@ -25,8 +27,8 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody List<Long> productsIds) {
-        Order order = orderService.createOrder(productsIds);
+    public ResponseEntity<Order> createOrder(@RequestBody CreateOrderRequest createOrderRequest, Authentication authentication) {
+        Order order = orderService.createOrder(authentication.getName(), createOrderRequest);
         return ResponseEntity.ok(order);
     }
 
@@ -42,6 +44,26 @@ public class OrderController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    // Can be filtered by status.
+    @GetMapping("/by-username")
+    public ResponseEntity<Page<Order>> getOrdersByUsername(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size,
+            @RequestParam(required = false) Status status,
+            Authentication authentication) {
+
+        Page<Order> orders;
+        String username = authentication.getName();
+
+        if (status != null) {
+            orders = orderService.getOrdersByUsernameAndStatus(username, status, PageRequest.of(page, size));
+        } else {
+            orders = orderService.getOrdersByUsername(username, PageRequest.of(page, size));
+        }
+
+        return ResponseEntity.ok(orders);
     }
 
     // Can be filtered by status.

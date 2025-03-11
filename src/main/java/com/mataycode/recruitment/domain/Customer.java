@@ -2,6 +2,7 @@ package com.mataycode.recruitment.domain;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Cascade;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -46,6 +47,7 @@ public class Customer {
     @JsonManagedReference
     private List<Order> orders = new ArrayList<>();
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Gender Gender;
 
@@ -55,8 +57,10 @@ public class Customer {
     @Column
     private String profileImageId;
 
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> roles;
+    private List<Role> roles;
 
     @Column(nullable = false)
     private LocalDate birthDate;
@@ -100,6 +104,10 @@ public class Customer {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public List<Order> getOrders() {
         return orders;
     }
@@ -108,15 +116,19 @@ public class Customer {
         return Gender;
     }
 
+    public void setGender(Gender gender) {
+        Gender = gender;
+    }
+
     public String getProfileImageId() {
         return profileImageId;
     }
 
-    public List<String> getRoles() {
+    public List<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<String> roles) {
+    public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
 

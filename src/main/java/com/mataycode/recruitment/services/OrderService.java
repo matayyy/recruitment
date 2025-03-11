@@ -1,10 +1,12 @@
 package com.mataycode.recruitment.services;
 
 import com.mataycode.recruitment.domain.*;
+import com.mataycode.recruitment.dto.CreateOrderRequest;
+import com.mataycode.recruitment.exception.ResourceNotFoundException;
+import com.mataycode.recruitment.repository.CustomerRepository;
 import com.mataycode.recruitment.repository.OrderRepository;
 import com.mataycode.recruitment.repository.OrderStatusHistoryRepository;
 import com.mataycode.recruitment.repository.ProductRepository;
-import com.mataycode.recruitment.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -22,25 +24,30 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final CustomerRepository customerRepository;
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
-    public OrderService(OrderRepository orderRepository, ProductRepository productRepository, OrderStatusHistoryRepository orderStatusHistoryRepository) {
+    public OrderService(OrderRepository orderRepository, ProductRepository productRepository, CustomerRepository customerRepository, OrderStatusHistoryRepository orderStatusHistoryRepository) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
+        this.customerRepository = customerRepository;
         this.orderStatusHistoryRepository = orderStatusHistoryRepository;
     }
 
-    public Order createOrder(List<Long> productsIds) {
+    public Order createOrder(String customerEmail, CreateOrderRequest createOrderRequest) {
+        Customer customer = customerRepository.findCustomerByEmail(customerEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with email [%s] not found".formatted(customerEmail)));
+
         List<OrderItem> orderItems = new ArrayList<>();
 
-        for (Long productId : productsIds) {
+        for (Long productId : createOrderRequest.productsIds()) {
             Product product = productRepository.findById(productId)
-                    .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+                    .orElseThrow(() -> new ResourceNotFoundException("Product with id [%s] not found".formatted(productId)));
             orderItems.add(new OrderItem(product, 1));
         }
 
-        Order order = new Order(orderItems);
+        Order order = new Order(customer, orderItems);
         for (OrderItem item : orderItems) {
             item.setOrder(order);
         }
@@ -65,8 +72,20 @@ public class OrderService {
         return orderRepository.findAll(pageable);
     }
 
+    public Page<Order> getOrdersByUsername(String username, Pageable pageable) {
+        Customer customer = customerRepository.findCustomerByEmail(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with email [%s] not found".formatted(username)));
+        return orderRepository.findOrdersByCustomer_Id(customer.getId(), pageable);
+    }
+
     public Page<Order> getOrdersByStatus(Status status, Pageable pageable) {
         return orderRepository.findOrdersByStatus(status, pageable);
+    }
+
+    public Page<Order> getOrdersByUsernameAndStatus(String username, Status status, Pageable pageable) {
+        Customer customer = customerRepository.findCustomerByEmail(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with email [%s] not found".formatted(username)));
+        return orderRepository.findOrdersByCustomer_IdAndStatus(customer.getId(), status, pageable);
     }
 
     private static final Map<Status, List<Status>> ALLOWED_STATUS_CHANGES = Map.of(

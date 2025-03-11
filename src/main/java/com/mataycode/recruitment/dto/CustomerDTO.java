@@ -1,7 +1,7 @@
 package com.mataycode.recruitment.dto;
 
-import com.mataycode.recruitment.domain.Customer;
 import com.mataycode.recruitment.domain.Gender;
+import com.mataycode.recruitment.domain.Role;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -12,7 +12,6 @@ public record CustomerDTO(
         String email,
         Gender gender,
         LocalDate birthDate,
-        List<String> roles,
+        List<Role> roles,
         String profileImageId) {
-
 }

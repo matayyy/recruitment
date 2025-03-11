@@ -1,4 +1,4 @@
-package com.mataycode.recruitment.config.security;
+package com.mataycode.recruitment.security;
 
 import com.mataycode.recruitment.domain.Customer;
 import org.springframework.security.core.GrantedAuthority;

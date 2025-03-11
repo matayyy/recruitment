@@ -33,10 +33,10 @@ class OrderServiceTest {
 
     private OrderService underTest;
 
-    @BeforeEach
-    void setUp() {
-        underTest = new OrderService(orderRepository, productRepository, orderStatusHistoryRepository);
-    }
+//    @BeforeEach
+//    void setUp() {
+//        underTest = new OrderService(orderRepository, productRepository, orderStatusHistoryRepository);
+//    }
 
     @Test
     void shouldUpdateOrderStatus() {

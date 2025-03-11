@@ -45,8 +45,9 @@ public class Order {
         this.status = Status.NEW;
     }
 
-    public Order(List<OrderItem> orderItems) {
+    public Order(Customer customer, List<OrderItem> orderItems) {
         this.status = Status.NEW;
+        this.customer = customer;
         this.orderItems = orderItems;
     }
 
