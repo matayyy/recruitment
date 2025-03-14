@@ -54,7 +54,6 @@ public class Customer {
     @Column(nullable = false)
     private String password;
 
-    @Column
     private String profileImageId;
 
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
@@ -64,6 +63,8 @@ public class Customer {
 
     @Column(nullable = false)
     private LocalDate birthDate;
+
+    private String provider;
 
     //CONSTRUCTORS
     public Customer() {
@@ -124,6 +125,10 @@ public class Customer {
         return profileImageId;
     }
 
+    public void setProfileImageId(String profileImageId) {
+        this.profileImageId = profileImageId;
+    }
+
     public List<Role> getRoles() {
         return roles;
     }
@@ -136,11 +141,23 @@ public class Customer {
         return password;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public LocalDate getBirthDate() {
         return birthDate;
     }
 
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
 }

@@ -15,10 +15,12 @@ public class SecurityFilterChainConfig {
 
     private final AuthenticationProvider authenticationProvider;
     private final AuthenticationEntryPoint authenticationEntryPoint;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
-    public SecurityFilterChainConfig(AuthenticationProvider authenticationProvider, AuthenticationEntryPoint authenticationEntryPoint) {
+    public SecurityFilterChainConfig(AuthenticationProvider authenticationProvider, AuthenticationEntryPoint authenticationEntryPoint, OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
         this.authenticationProvider = authenticationProvider;
         this.authenticationEntryPoint = authenticationEntryPoint;
+        this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
     }
 
     @Bean
@@ -35,7 +37,8 @@ public class SecurityFilterChainConfig {
                 )
                 .authenticationProvider(authenticationProvider)
                 .formLogin(Customizer.withDefaults())
-                .oauth2Login(Customizer.withDefaults());
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2LoginSuccessHandler));
 
 //                .exceptionHandling(conf -> conf.authenticationEntryPoint(authenticationEntryPoint));
 

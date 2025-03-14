@@ -24,7 +24,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
 <!--        POSTGRES DRIVER FOR DATABASE/DATASOURCE AND DATABASE STUFF-->
         <dependency>
@@ -79,12 +83,12 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-<!--        SPRING TEST-->
+<!--        EMAIL SENDING-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
+
 
     </dependencies>
 

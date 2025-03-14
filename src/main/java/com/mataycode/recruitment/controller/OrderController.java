@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,7 +30,16 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<Order> createOrder(@RequestBody CreateOrderRequest createOrderRequest, Authentication authentication) {
-        Order order = orderService.createOrder(authentication.getName(), createOrderRequest);
+
+        String email;
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
+            email = oauthUser.getAttribute("email"); // Pobierz email z Google
+        } else {
+            email = authentication.getName(); // Dla użytkowników logujących się normalnie (username = email)
+        }
+
+        Order order = orderService.createOrder(email, createOrderRequest);
         return ResponseEntity.ok(order);
     }
 
@@ -48,19 +59,27 @@ public class OrderController {
 
     // Can be filtered by status.
     @GetMapping("/by-username")
-    public ResponseEntity<Page<Order>> getOrdersByUsername(
+    public ResponseEntity<Page<Order>> getOrdersByEmail(
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int size,
             @RequestParam(required = false) Status status,
             Authentication authentication) {
 
+        String email;
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
+            email = oauthUser.getAttribute("email"); // Pobierz email z Google
+        } else {
+            email = authentication.getName(); // Dla użytkowników logujących się normalnie (username = email)
+        }
+
         Page<Order> orders;
         String username = authentication.getName();
 
         if (status != null) {
-            orders = orderService.getOrdersByUsernameAndStatus(username, status, PageRequest.of(page, size));
+            orders = orderService.getOrdersByUsernameAndStatus(email, status, PageRequest.of(page, size));
         } else {
-            orders = orderService.getOrdersByUsername(username, PageRequest.of(page, size));
+            orders = orderService.getOrdersByUsername(email, PageRequest.of(page, size));
         }
 
         return ResponseEntity.ok(orders);

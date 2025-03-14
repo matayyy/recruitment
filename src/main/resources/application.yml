@@ -7,11 +7,19 @@ spring:
       client:
         registration:
           google:
-            client-id: YOUR CLIENT ID
-            client-secret: YOUR CLIENT SECRET
-#            scope:
-#              - profile
-#              - email
+            client-id: xxxxxxxxxxxxxxxxxxxxxx
+            client-secret: xxxxxxxxxxxxxxxxxx
+            scope:
+              - email
+              - profile
+              - https://www.googleapis.com/auth/user.birthday.read
+              - https://www.googleapis.com/auth/user.gender.read
+
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
 
   datasource:
     url: jdbc:postgresql://localhost:5432/recruitment
