@@ -6,7 +6,7 @@ import com.mataycode.recruitment.domain.Role;
 import com.mataycode.recruitment.repository.CustomerRepository;
 import com.mataycode.recruitment.services.GoogleUserService;
 import com.mataycode.recruitment.services.OAuth2UserService;
-import com.mataycode.recruitment.util.UserInfoParser;
+import com.mataycode.recruitment.util.GoogleUserInfoParser;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -59,9 +59,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         Map<String, Object> userInfo = googleUserDataService.getUserInfo(client.getAccessToken().getTokenValue());
 
         //GET GENDER
-        Gender gender = Gender.valueOf(UserInfoParser.extractGender(userInfo));
+        Gender gender = Gender.valueOf(GoogleUserInfoParser.extractGender(userInfo));
         //GET BIRTHDATE
-        LocalDate birthdate = UserInfoParser.extractBirthdate(userInfo);
+        LocalDate birthdate = GoogleUserInfoParser.extractBirthdate(userInfo);
 
         //CREATE RANDOM PASSWORD
         String hashedPassword = passwordEncoder.encode(UUID.randomUUID().toString());
@@ -78,6 +78,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             newCustomer.setPassword(hashedPassword);
             return customerRepository.save(newCustomer);
         });
+
+        //todo: SEND USER EMAIL WITHOUT VERIFICATION LINK.
 
         response.sendRedirect("/");
     }

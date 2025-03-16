@@ -18,6 +18,8 @@ target/
 *.iws
 *.iml
 *.ipr
+*env.yml
+src/main/resources/client_secret_425073778573-kmkd7qvq0pdbfva2jmm45vhb7k61f14u.apps.googleusercontent.com.json
 
 ### NetBeans ###
 /nbproject/private/

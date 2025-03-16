@@ -56,6 +56,20 @@ public class CustomerService {
         //save the new customer
         customerRepository.save(customerToSave);
 
+        //send email to new customer //todo: add verification link to activate account
+        try {
+            new GMailer().sendMail(customerToSave.getEmail(),"Registration message.", """
+                    Dear customer,
+                    
+                    You are successfully registered with your email address.
+                    
+                    Best Regards,
+                    Mataycode.
+                    """);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         //return customerDTO of saved customer
         return customerDTOMapper.apply(customerToSave);
     }
