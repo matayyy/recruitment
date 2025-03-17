@@ -46,6 +46,6 @@ public class CustomerUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return customer.isEnabled();
     }
 }

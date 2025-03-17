@@ -66,6 +66,9 @@ public class Customer {
 
     private String provider;
 
+    @Column(nullable = false)
+    private boolean enabled;
+
     //CONSTRUCTORS
     public Customer() {
     }
@@ -76,6 +79,9 @@ public class Customer {
         this.Gender = gender;
         this.password = password;
         this.birthDate = birthDate;
+        //SET DEFAULT VALUES
+        this.roles = List.of(Role.USER);
+        this.enabled = false;
     }
 
     //OWN METHODS
@@ -159,5 +165,13 @@ public class Customer {
 
     public void setProvider(String provider) {
         this.provider = provider;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

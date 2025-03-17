@@ -7,6 +7,8 @@ import jakarta.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
 
 public record CustomerRegistrationRequest(
+
+        //REMEMBER TO USE @VALID AT CONTROLLERS!
         String name,
         @Email(message = "Invalid email format")
         String email,

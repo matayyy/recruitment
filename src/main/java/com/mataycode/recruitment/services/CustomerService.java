@@ -1,78 +1,31 @@
 package com.mataycode.recruitment.services;
 
 import com.mataycode.recruitment.domain.Customer;
-import com.mataycode.recruitment.domain.Role;
 import com.mataycode.recruitment.dto.CustomerDTO;
 import com.mataycode.recruitment.dto.CustomerDTOMapper;
-import com.mataycode.recruitment.dto.CustomerRegistrationRequest;
 import com.mataycode.recruitment.dto.CustomerUpdateRequest;
 import com.mataycode.recruitment.exception.DuplicateResourceException;
-import com.mataycode.recruitment.exception.InvalidEmailFormatException;
 import com.mataycode.recruitment.exception.RequestValidationException;
 import com.mataycode.recruitment.exception.ResourceNotFoundException;
 import com.mataycode.recruitment.repository.CustomerRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final CustomerDTOMapper customerDTOMapper;
-    private final PasswordEncoder passwordEncoder;
 
-    public CustomerService(CustomerRepository customerRepository, CustomerDTOMapper customerDTOMapper, PasswordEncoder passwordEncoder) {
+    public CustomerService(CustomerRepository customerRepository, CustomerDTOMapper customerDTOMapper) {
         this.customerRepository = customerRepository;
         this.customerDTOMapper = customerDTOMapper;
-        this.passwordEncoder = passwordEncoder;
     }
 
-    public CustomerDTO registerCustomer(CustomerRegistrationRequest customerRegistrationRequest) {
-
-        //validate email format (already checked at @CustomerRegistrationRequest)
-//        validateEmailFormatOrThrow(customerRegistrationRequest.email());
-
-        //validate email uniqueness
-        validateEmailUniquenessOrThrow(customerRegistrationRequest.email());
-
-        //create a new Customer object from registration request
-        Customer customerToSave = new Customer(
-                customerRegistrationRequest.name(),
-                customerRegistrationRequest.email(),
-                customerRegistrationRequest.gender(),
-                passwordEncoder.encode(customerRegistrationRequest.password()),
-                customerRegistrationRequest.birthDate()
-        );
-
-        //ADD ROLE USER
-        customerToSave.setRoles(List.of(Role.USER));
-
-        //save the new customer
-        customerRepository.save(customerToSave);
-
-        //send email to new customer //todo: add verification link to activate account
-        try {
-            new GMailer().sendMail(customerToSave.getEmail(),"Registration message.", """
-                    Dear customer,
-                    
-                    You are successfully registered with your email address.
-                    
-                    Best Regards,
-                    Mataycode.
-                    """);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        //return customerDTO of saved customer
-        return customerDTOMapper.apply(customerToSave);
-    }
 
     public CustomerDTO getCustomerById(Long id) {
         return customerRepository.findById(id)
@@ -105,6 +58,7 @@ public class CustomerService {
         return ResponseEntity.noContent().build(); //HTTP 204 No Content
     }
 
+    @Transactional
     public void updateCustomer(Long id, CustomerUpdateRequest updateRequest) {
         //get customer
         Customer customerToUpdate = customerRepository.findById(id)
@@ -121,7 +75,10 @@ public class CustomerService {
         //check field email
         if (updateRequest.email() != null && !customerToUpdate.getEmail().equals(updateRequest.email())) {
             //email format validation checked at CustomerUpdateRequest
-            validateEmailUniquenessOrThrow(updateRequest.email());
+            if (customerRepository.findCustomerByEmail(updateRequest.email())
+                    .isPresent()) {
+                throw new DuplicateResourceException("Email already taken");
+            }
             customerToUpdate.setEmail(updateRequest.email());
             changes = true;
         }
@@ -147,6 +104,10 @@ public class CustomerService {
         }
     }
 
+    public void enableCustomer(String email) {
+        customerRepository.enableCustomer(email);
+    }
+
     //Private methods -------------------------
 
 //    todo: CONSIDER OF REFACTORING AND USE IN UPDATE CUSTOMER
@@ -160,21 +121,4 @@ public class CustomerService {
 //        }
 //        return false;
 //    }
-
-    private void validateEmailFormatOrThrow(String email) {
-        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
-        Pattern pattern = Pattern.compile(emailRegex);
-        Matcher matcher = pattern.matcher(email);
-
-        if (!matcher.matches()) {
-            throw new InvalidEmailFormatException("Invalid email format: " + email);
-        }
-    }
-
-    private void validateEmailUniquenessOrThrow(String email) {
-        if (customerRepository.findCustomerByEmail(email)
-                .isPresent()) {
-            throw new DuplicateResourceException("Email already taken");
-        }
-    }
 }

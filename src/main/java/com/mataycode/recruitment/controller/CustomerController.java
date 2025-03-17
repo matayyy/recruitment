@@ -45,12 +45,6 @@ public class CustomerController {
 //        return ResponseEntity.ok(response);
 //    }
 
-    @PostMapping("/register")
-    public ResponseEntity<CustomerDTO> registerCustomer(@Valid @RequestBody CustomerRegistrationRequest registrationRequest) {
-        CustomerDTO customerDTO = customerService.registerCustomer(registrationRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(customerDTO);
-    }
-
     @DeleteMapping("/{customerId}")
     public ResponseEntity<Void> deleteCustomer(@PathVariable Long customerId) {
         return customerService.deleteCustomerById(customerId);
