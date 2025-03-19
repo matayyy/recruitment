@@ -2,6 +2,9 @@ package com.mataycode.recruitment.domain;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "products")
 public class Product {
@@ -20,6 +23,11 @@ public class Product {
     String name;
 
     private Double price;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private List<Category> categories = new ArrayList<>();
+
 
     //CONSTRUCTORS
     public Product() {
@@ -41,5 +49,9 @@ public class Product {
 
     public Double getPrice() {
         return price;
+    }
+
+    public List<Category> getCategories() {
+        return categories;
     }
 }

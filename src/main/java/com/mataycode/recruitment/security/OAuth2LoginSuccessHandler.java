@@ -4,6 +4,7 @@ import com.mataycode.recruitment.domain.Customer;
 import com.mataycode.recruitment.domain.Gender;
 import com.mataycode.recruitment.domain.Role;
 import com.mataycode.recruitment.repository.CustomerRepository;
+import com.mataycode.recruitment.services.GMailer;
 import com.mataycode.recruitment.services.GoogleUserService;
 import com.mataycode.recruitment.services.OAuth2UserService;
 import com.mataycode.recruitment.util.GoogleUserInfoParser;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -76,10 +78,25 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             newCustomer.setRoles(List.of(Role.USER));
             newCustomer.setBirthDate(birthdate);
             newCustomer.setPassword(hashedPassword);
-            return customerRepository.save(newCustomer);
-        });
+            newCustomer.setEnabled(true);
+            Customer savedCustomer = customerRepository.save(newCustomer);
 
-        //todo: SEND USER EMAIL WITHOUT VERIFICATION LINK.
+            //SEND USER EMAIL WITHOUT VERIFICATION LINK.
+            try {
+                new GMailer().sendMail(email, "Registration message", """
+                    Hola!
+                    Successfully registered at mataycode-website!
+                    
+                    Now yo are part of our familia amigo.
+                    Saludos.
+                    """);
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            return savedCustomer;
+        });
 
         response.sendRedirect("/");
     }
